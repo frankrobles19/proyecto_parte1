@@ -1,177 +1,238 @@
-create table pais(
-    id int auto_increment primary key,
-    nombre varchar(100) not null
+CREATE TABLE ciudad (
+    id INT NOT NULL AUTO_INCREMENT,
+    nombre_ciudad VARCHAR(255) NOT NULL,
+    region_id SMALLINT NOT NULL,
+    PRIMARY KEY (id)
 );
 
-create table region(
-	id int auto_increment primary key,
-	nombre varchar(100) not null,
-    id_pais int not null,
-    constraint FK_id_pais foreign key(id_pais) references pais(id)
+CREATE TABLE cliente (
+    id INT NOT NULL AUTO_INCREMENT,
+    nombre_cliente VARCHAR(50) NOT NULL,
+    apellido_1_cliente VARCHAR(50) NOT NULL,
+    apellido_2_cliente VARCHAR(50) NOT NULL,
+    rep_ventas_id SMALLINT,
+    limite_credito DOUBLE,
+    PRIMARY KEY (id)
 );
 
-create table ciudad(
-	id int auto_increment primary key,
-	nombre varchar(100) not null,
-	id_region int  not null,
-	constraint FK_id_region foreign key(id_region) references region(id)
+CREATE TABLE contacto (
+    id INT NOT NULL AUTO_INCREMENT,
+    nombre_contacto VARCHAR(50) NOT NULL,
+    apellido_contacto VARCHAR(30) NOT NULL,
+    emai_contacto VARCHAR(30),
+    cliente_id SMALLINT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (cliente_id) REFERENCES cliente(id)
 );
 
-create table oficina(
-	id int auto_increment primary key,
-    cod_postal int(6) not null,
-    linea_d1 varchar(100) not null,
-    linea_d2 varchar(100),
-    id_ciudad int,
-    constraint FK_id_ciudad_oficina foreign key(id_ciudad) references ciudad(id)
+CREATE TABLE detalle_pedido (
+    id INT NOT NULL AUTO_INCREMENT,
+    pedido_id SMALLINT NOT NULL,
+    detalle_producto_id SMALLINT NOT NULL,
+    cantidad SMALLINT NOT NULL,
+    precio_unidad DOUBLE NOT NULL,
+    numero_linea SMALLINT NOT NULL,
+    transaccion_id SMALLINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (pedido_id) REFERENCES pedido(id),
+    FOREIGN KEY (detalle_producto_id) REFERENCES detalle_producto(id),
+    FOREIGN KEY (transaccion_id) REFERENCES transaccion(id)
 );
 
-create table empleado(
-	cedula int not null primary key,
-    nombre varchar(100) not null,
-    apellido1 varchar(100) not null,
-    apellido2 varchar(100),
-    extension int(5) not null,
-    puesto varchar(100),
-    email varchar(100) not null,
-    jefe int,
-    id_oficina int,
-    constraint FK_cedula_jefe foreign key(jefe) references empleado(cedula),
-    constraint FK_id_oficina foreign key(id_oficina) references oficina(id)
+CREATE TABLE detalle_producto (
+    id INT NOT NULL AUTO_INCREMENT,
+    id_producto SMALLINT NOT NULL,
+    id_gama SMALLINT NOT NULL,
+    id_dimension SMALLINT NOT NULL,
+    id_proveedor SMALLINT,
+    descripcion VARCHAR(50),
+    stock SMALLINT,
+    precio_venta DOUBLE NOT NULL,
+    precio_proveedor DOUBLE NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (id_producto) REFERENCES producto(id),
+    FOREIGN KEY (id_gama) REFERENCES gama(id),
+    FOREIGN KEY (id_dimension) REFERENCES dimension(id),
+    FOREIGN KEY (id_proveedor) REFERENCES proveedor(id)
 );
 
-create table cliente(
-    cedula int(10) primary key,
-	nombre varchar(100) not null,
-	linea_d1 varchar(100) not null,
-    linea_d2 varchar(100),
-    id_ciudad int not null,
-    cedula_empleado int,
-    constraint FK_id_ciudad_cliente foreign key(id_ciudad) references ciudad(id),
-    constraint FK_id_empleado foreign key(cedula_empleado) references empleado(cedula)
+CREATE TABLE dimension (
+    id INT NOT NULL AUTO_INCREMENT,
+    dimension VARCHAR(25),
+    PRIMARY KEY (id)
 );
 
-create table proveedor(
-	nit int(9) primary key,
-    nombre varchar(100) not null
+CREATE TABLE direccion_cliente (
+    id INT NOT NULL AUTO_INCREMENT,
+    linea_1 VARCHAR(50) NOT NULL,
+    linea_2 VARCHAR(50),
+    codigo_postal SMALLINT,
+    ciudad_id SMALLINT NOT NULL,
+    cliente_id SMALLINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (ciudad_id) REFERENCES ciudad(id),
+    FOREIGN KEY (cliente_id) REFERENCES cliente(id)
 );
 
-create table sucursal(
-	id int auto_increment primary key,
-    direccion varchar(100) not null,
-    nit_proveedor int not null,
-    id_ciudad int not null,
-    constraint FK_nit_proveedor_sucursal foreign key(nit_proveedor) references proveedor(nit),
-    constraint FK_id_ciudad_sucursal foreign key(id_ciudad) references ciudad(id)
+CREATE TABLE direccion_oficina (
+    id INT NOT NULL AUTO_INCREMENT,
+    linea_1 VARCHAR(50) NOT NULL,
+    linea_2 VARCHAR(50) NOT NULL,
+    codigo_postal SMALLINT,
+    ciudad_id SMALLINT NOT NULL,
+    oficina_id SMALLINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (ciudad_id) REFERENCES ciudad(id),
+    FOREIGN KEY (oficina_id) REFERENCES oficina(id)
 );
 
-create table tipo_telefono(
-	id int auto_increment primary key,
-    descripcion varchar(100) not null
+CREATE TABLE empleado (
+    id INT NOT NULL AUTO_INCREMENT,
+    nombre_empledo VARCHAR(50) NOT NULL,
+    apellido_1 VARCHAR(50) NOT NULL,
+    apellido_2 VARCHAR(50),
+    oficina_id SMALLINT NOT NULL,
+    codigo_jefe INT NOT NULL,
+    id_puesto SMALLINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (oficina_id) REFERENCES oficina(id),
+    FOREIGN KEY (codigo_jefe) REFERENCES empleado(id),
+    FOREIGN KEY (id_puesto) REFERENCES puesto(id)
 );
 
-create table telefono(
-    id int auto_increment primary key,
-    numero int(15) not null,
-    prefijo int(5) not null,
-    cedula_cliente int(10) null,
-    id_tipo_telefono int not null,
-    nit_proveedor int(9) null,
-    id_oficina int null,
-    constraint FK_id_oficina_telefono foreign key(id_oficina) references oficina(id),
-    constraint FK_cedula_cliente_telefono foreign key(cedula_cliente) references cliente(cedula),
-    constraint FK_nit_proveedor_telefono foreign key(nit_proveedor) references proveedor(nit),
-    constraint FK_id_tipo_telefono foreign key(id_tipo_telefono) references tipo_telefono(id)
+CREATE TABLE estado (
+    id INT NOT NULL AUTO_INCREMENT,
+    estado VARCHAR(15) NOT NULL,
+    PRIMARY KEY (id)
 );
 
-create table tipo_pago(
-	id int auto_increment primary key,
-    descripcion varchar(100) not null
+CREATE TABLE forma_pago (
+    id INT NOT NULL AUTO_INCREMENT,
+    tipo VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
 );
 
-create table pago(
-	id int auto_increment primary key,
-    fecha date not null,
-    total double not null,
-    cedula_cliente int(10) not null,
-    id_tipo_pago int not null,
-    constraint FK_cedula_cliente_pago foreign key(cedula_cliente) references cliente(cedula),
-    constraint FK_id_tipo_pago foreign key(id_tipo_pago) references tipo_pago(id)
+CREATE TABLE forma_pago_cliente (
+    id INT NOT NULL AUTO_INCREMENT,
+    id_forma_pago SMALLINT NOT NULL,
+    id_cliente SMALLINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (id_forma_pago) REFERENCES forma_pago(id),
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id)
 );
 
-create table contacto(
-	id int auto_increment primary key,
-    nombre varchar(100) not null,
-    apellido varchar(100) not null,
-    email varchar(50) null,
-    cedula_cliente int(10) null,
-    nit_proveedor int(9) null,
-    constraint FK_cedula_cliente_contacto foreign key(cedula_cliente) references cliente(cedula),
-    constraint FK_nit_proveedor_contacto foreign key(nit_proveedor) references proveedor(nit)
+CREATE TABLE gama (
+    id INT NOT NULL AUTO_INCREMENT,
+    descripcion_texto TEXT,
+    descripcion_html TEXT,
+    imagen VARCHAR(256),
+    PRIMARY KEY (id)
 );
 
-create table estado_pedido(
-	id int auto_increment primary key,
-    descripcion varchar(100) not null 
+CREATE TABLE oficina (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    nombre_oficina VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
 );
 
-create table gamma_producto(
-	id int auto_increment primary key,
-    descripcion_txt varchar(200) not null,
-    descripcion_html varchar(200) not null,
-    imagen varchar(100) not null
+CREATE TABLE pais (
+    id INT NOT NULL AUTO_INCREMENT,
+    nombre_pais VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
 );
 
-create table dimensiones(
-	id int auto_increment primary key,
-    largo int(4) not null,
-    ancho int(4) not null,
-    alto int(4) null
+CREATE TABLE pedido (
+    id INT NOT NULL AUTO_INCREMENT,
+    fecha_pedido DATE NOT NULL,
+    fecha_esperada DATE NOT NULL,
+    fecha_entrega DATE,
+    comentarios VARCHAR(255),
+    id_cliente SMALLINT NOT NULL,
+    estado_id SMALLINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id),
+    FOREIGN KEY (estado_id) REFERENCES estado(id)
 );
 
-create table producto(
-	id int auto_increment primary key,
-    nombre varchar(100) not null,
-    descripcion varchar(200) null,
-    precio_venta double not null,
-    precio_proveedor double null,
-    id_gamma_producto int not null,
-    id_dimensiones int null,
-    nit_proveedor int(9) null,
-    constraint FK_id_gamma_producto foreign key(id_gamma_producto) references gamma_producto(id),
-    constraint FK_id_dimensiones foreign key(id_dimensiones) references dimensiones(id),
-    constraint FK_nit_proveedor_prodcuto foreign key(nit_proveedor) references proveedor(nit)
+CREATE TABLE producto (
+    id INT NOT NULL AUTO_INCREMENT,
+    nombre_producto VARCHAR(70),
+    PRIMARY KEY (id)
 );
 
-create table inventario(
-	id int auto_increment primary key,
-    stock_mininmo int(6) null,
-    stock_maximo int(6) null,
-    stock_actual int(6) not null,
-    id_producto int not null,
-    constraint FK_id_producto_inventario foreign key(id_producto) references producto(id)
+CREATE TABLE proveedor (
+    id INT NOT NULL AUTO_INCREMENT,
+    nombre_proveedor VARCHAR(50) NOT NULL,
+    PRIMARY KEY (id)
 );
 
-create table pedido(
-	id int auto_increment primary key,
-    fecha_pedido date not null,
-    fecha_esperada date not null,
-    fecha_entrega date null,
-    comentarios varchar(200) null,
-    id_estado_pedido int not null,
-    cedula_cliente int(10) not null,
-    constraint FK_cedula_cliente_peido foreign key(cedula_cliente) references cliente(cedula),
-    constraint FK_id_estado_pedido foreign key(id_estado_pedido) references estado_pedido(id)
+CREATE TABLE puesto (
+    id INT NOT NULL AUTO_INCREMENT,
+    nombre_puesto VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
 );
 
-create table detalle_pedido(
-	id_producto int not null,
-    id_pedido int not null,
-    cantidad int(6) not null,
-    precio_unidad double not null,
-    numero_linea int(6) not null,
-    primary key(id_producto,id_pedido),
-    constraint FK_id_producto_detalle_pedido foreign key(id_producto) references producto(id),
-    constraint FK_id_pedido_detalle_pedido foreign key(id_pedido) references pedido(id)
+CREATE TABLE region (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    nombre_region VARCHAR(255) NOT NULL,
+    pais_id SMALLINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (pais_id) REFERENCES pais(id)
 );
 
+CREATE TABLE telefono_cliente (
+    cliente_id SMALLINT NOT NULL,
+    tipo_telefono_id SMALLINT NOT NULL,
+    numero SMALLINT NOT NULL,
+    id VARCHAR(255) NOT NULL,
+    fax SMALLINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (cliente_id) REFERENCES cliente(id),
+    FOREIGN KEY (tipo_telefono_id) REFERENCES tipo_telefono(id)
+);
+
+CREATE TABLE telefono_contacto (
+    id VARCHAR(255) NOT NULL,
+    numero SMALLINT NOT NULL,
+    tipo_telefono SMALLINT NOT NULL,
+    contacto_id SMALLINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (tipo_telefono) REFERENCES tipo_telefono(id),
+    FOREIGN KEY (contacto_id) REFERENCES contacto(id)
+);
+
+CREATE TABLE telefono_empleado (
+    id INT NOT NULL AUTO_INCREMENT,
+    tipo_telefono SMALLINT NOT NULL,
+    empleado_id SMALLINT NOT NULL,
+    numero SMALLINT NOT NULL,
+    extension SMALLINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (tipo_telefono) REFERENCES tipo_telefono(id),
+    FOREIGN KEY (empleado_id) REFERENCES empleado(id)
+);
+
+CREATE TABLE telefono_oficina (
+    id INT NOT NULL AUTO_INCREMENT,
+    tipo_telefono SMALLINT NOT NULL,
+    oficina_id SMALLINT NOT NULL,
+    numero SMALLINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (tipo_telefono) REFERENCES tipo_telefono(id),
+    FOREIGN KEY (oficina_id) REFERENCES oficina(id)
+);
+
+CREATE TABLE tipo_telefono (
+    id INT NOT NULL AUTO_INCREMENT,
+    tipo_telefono VARCHAR(20) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE transaccion (
+    id INTEGER NOT NULL,
+    id_forma_pago_cliente SMALLINT NOT NULL,
+    fecha_pago DATE,
+    total DOUBLE PRECISION NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (id_forma_pago_cliente) REFERENCES forma_pago_cliente(id)
+);
